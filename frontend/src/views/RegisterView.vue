@@ -46,9 +46,10 @@
           </div>
         </div>
         <div class="field">
-          <button class="button is-dark is-fullwidth">Register</button>
+          <button class="button is-link is-fullwidth">Register</button>
         </div>
       </form>
+      Already have an account? <RouterLink to="/login">click here</RouterLink> to login!
     </div>
   </div>
 </template>

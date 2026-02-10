@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1 class="title">Available Routes</h1>
-    <div v-if="routes.length === 0" class="notification is-info">
+    <div v-if="routes.length === 0" class="notification has-background-info-light">
       No routes available yet. Check back soon!
     </div>
     <div class="columns is-multiline">

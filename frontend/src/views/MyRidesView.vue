@@ -4,7 +4,7 @@
 
     <div v-if="!$store.state.user.is_driver">
       <h2 class="subtitle">Routes I've Reserved</h2>
-      <div v-if="bookings.length === 0" class="notification">You haven't reserved any rides yet.</div>
+      <div v-if="bookings.length === 0" class="notification has-background-info-light">You haven't reserved any rides yet.</div>
       <div class="columns is-multiline">
         <div class="column is-12" v-for="booking in bookings" :key="booking.id">
           <div class="card">
@@ -25,7 +25,7 @@
 
     <div v-else>
       <h2 class="subtitle">Routes I'm Driving</h2>
-      <div v-if="myRoutes.length === 0" class="notification">You haven't advertised any routes yet.</div>
+      <div v-if="myRoutes.length === 0" class="notification has-background-info-light">You haven't advertised any routes yet.</div>
       <div class="columns is-multiline">
         <div class="column is-12" v-for="route in myRoutes" :key="route.id">
           <div class="card mb-4">

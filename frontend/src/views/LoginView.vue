@@ -12,8 +12,9 @@
           <div class="control"><input type="password" class="input" v-model="password"></div>
         </div>
         <div class="field">
-          <button class="button is-primary is-fullwidth">Login</button>
+          <button class="button is-link is-fullwidth">Login</button>
         </div>
+        Don't have an account? <RouterLink to="/register">Click here</RouterLink> to register!
       </form>
     </div>
   </div>
