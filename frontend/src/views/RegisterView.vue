@@ -111,7 +111,7 @@ export default {
           }
         }
 
-        await axios.post('/auth/users/', formData, config)
+        await axios.post('/api/register/', formData, config)
         toast({ message: 'Account created! Please login.', type: 'is-success' })
         this.$router.push('/login')
       } catch (error) {

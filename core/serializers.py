@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 from .models import User, Route, Booking
 
 
@@ -6,10 +7,20 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "username", "nickname", "email", "is_driver", "profile_image")
+        read_only_fields = ("id", "username", "is_driver")
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for profile updates — only allows safe fields."""
+    class Meta:
+        model = User
+        fields = ("nickname", "email", "profile_image")
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
+    email = serializers.EmailField(required=True)
+    nickname = serializers.CharField(required=True, min_length=1)
 
     class Meta:
         model = User
@@ -49,6 +60,18 @@ class RouteSerializer(serializers.ModelSerializer):
     def get_passengers(self, obj):
         # Returns a list of nicknames of riders who booked this specific route
         return [booking.rider.nickname for booking in obj.bookings.all()]
+
+    def validate_capacity(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Capacity must be at least 1.")
+        if value > 50:
+            raise serializers.ValidationError("Capacity cannot exceed 50.")
+        return value
+
+    def validate_date(self, value):
+        if value < timezone.now().date():
+            raise serializers.ValidationError("Route date cannot be in the past.")
+        return value
 
 
 class BookingSerializer(serializers.ModelSerializer):

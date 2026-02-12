@@ -19,13 +19,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+import os
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-mvdg(2*pef0d-oh=of-er2@qhwhx!-vwu5n78txy2bcd5ht!0d"
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-mvdg(2*pef0d-oh=of-er2@qhwhx!-vwu5n78txy2bcd5ht!0d",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
 # Application definition
@@ -33,8 +38,6 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
 INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
-    "rest_framework.authtoken",
-    "djoser",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -55,7 +58,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# CORS will handle preflight requests, but we need to ensure credentials are properly handled
+# CORS configuration
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
@@ -64,8 +67,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",  # Vue CLI dev server
     "http://localhost:8080",  # Vue CLI dev server
 ]
-
-CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "backend.urls"
 
@@ -156,13 +157,14 @@ REST_FRAMEWORK = {
 
 # Session and Cookie Configuration for persistent login
 SESSION_COOKIE_AGE = 1209600  # 2 weeks (as per requirement: persists after browser close)
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Explicitly persist sessions across browser restarts
+SESSION_COOKIE_SECURE = not DEBUG  # True in production with HTTPS
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access (security)
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_SAVE_EVERY_REQUEST = True  # Keep session alive on each request
 
 # CSRF Configuration
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SECURE = not DEBUG  # True in production with HTTPS
 CSRF_COOKIE_HTTPONLY = False  # Frontend needs to read CSRF token
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_USE_SESSIONS = False  # Store CSRF token in cookie, not session
@@ -174,17 +176,4 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8080",
 ]
 
-# Djoser Configuration
-DJOSER = {
-    "USER_ID_FIELD": "id",
-    "LOGIN_FIELD": "username",
-    "SERIALIZERS": {
-        "user": "core.serializers.UserSerializer",
-        "user_create": "core.serializers.UserCreateSerializer",
-        "current_user": "core.serializers.UserSerializer",
-    },
-    "PERMISSIONS": {
-        "user_create": ["rest_framework.permissions.AllowAny"],
-        "user": ["rest_framework.permissions.IsAuthenticated"],
-    },
-}
+

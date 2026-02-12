@@ -45,7 +45,11 @@ export default {
 
         this.$router.push('/')
       } catch (error) {
-        alert("Invalid Login: " + (error.response?.data?.detail || "Check your credentials"))
+        const { toast } = await import('bulma-toast')
+        toast({
+          message: 'Invalid Login: ' + (error.response?.data?.detail || 'Check your credentials'),
+          type: 'is-danger'
+        })
       }
     }
   }

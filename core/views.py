@@ -1,11 +1,15 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, mixins
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login, logout
+from django.db import transaction
 from .models import Route, Booking
-from .serializers import RouteSerializer, BookingSerializer, UserSerializer
+from .serializers import (
+    RouteSerializer, BookingSerializer, UserSerializer, UserProfileSerializer
+)
 
 
 @api_view(['GET'])
@@ -17,6 +21,23 @@ def get_csrf_token(request):
     This ensures the csrftoken cookie is set.
     """
     return Response({'detail': 'CSRF cookie set'})
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def register_view(request):
+    """
+    Public registration endpoint (replaces djoser).
+    """
+    from .serializers import UserCreateSerializer
+    serializer = UserCreateSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(
+            {'detail': 'Account created successfully'},
+            status=status.HTTP_201_CREATED
+        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -64,11 +85,12 @@ def current_user_view(request):
         return Response(serializer.data)
 
     elif request.method == 'PATCH':
-        # Allow updating nickname, email, and profile_image
-        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        # Use profile serializer that excludes is_driver and username (read-only)
+        serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            # Return full user data for the frontend store
+            return Response(UserSerializer(request.user).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -78,27 +100,50 @@ class RouteViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        # Automatically set the driver to the current logged-in user
+        # Only drivers can advertise routes
+        if not self.request.user.is_driver:
+            raise PermissionDenied("Only drivers can advertise routes.")
         serializer.save(driver=self.request.user)
+
+    def perform_update(self, serializer):
+        # Only the route's driver can update it
+        if serializer.instance.driver != self.request.user:
+            raise PermissionDenied("You can only edit your own routes.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Only the route's driver can delete it
+        if instance.driver != self.request.user:
+            raise PermissionDenied("You can only delete your own routes.")
+        instance.delete()
 
     @action(detail=True, methods=["post"])
     def join(self, request, pk=None):
-        route = self.get_object()
-        user = request.user
-
-        # Business Logic Check
-        if not route.is_available:
+        # Only riders (non-drivers) can reserve seats
+        if request.user.is_driver:
             return Response(
-                {"error": "No seats available"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Drivers cannot reserve seats. Please use a rider account."},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
-        if Booking.objects.filter(route=route, rider=user).exists():
-            return Response(
-                {"error": "Already joined this route"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # Use transaction + select_for_update to prevent race conditions
+        with transaction.atomic():
+            route = Route.objects.select_for_update().get(pk=pk)
+            user = request.user
 
-        Booking.objects.create(route=route, rider=user)
+            if not route.is_available:
+                return Response(
+                    {"error": "No seats available"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if Booking.objects.filter(route=route, rider=user).exists():
+                return Response(
+                    {"error": "Already joined this route"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            Booking.objects.create(route=route, rider=user)
+
         return Response(
             {"status": "joined successfully"}, status=status.HTTP_201_CREATED
         )
@@ -114,9 +159,12 @@ class RouteViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class BookingViewSet(viewsets.ModelViewSet):
+class BookingViewSet(mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet):
     """
-    Handles Rider reservations.
+    Handles Rider reservations (list + cancel only).
     GET /api/bookings/ -> List only current user's reservations.
     DELETE /api/bookings/{id}/ -> Cancel a reservation.
     """

@@ -41,6 +41,8 @@ export default {
         this.routes = response.data
       } catch (error) {
         console.error('Error fetching routes:', error)
+        const { toast } = await import('bulma-toast')
+        toast({ message: 'Failed to load routes. Please try again.', type: 'is-danger' })
       }
     },
     formatDate(dateString) {

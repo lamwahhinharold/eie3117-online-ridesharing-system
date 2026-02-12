@@ -2,7 +2,12 @@
   <div id="wrapper">
     <nav class="navbar is-dark">
       <div class="navbar-brand">
-        <router-link to="/" class="navbar-item"><strong>RideShare</strong></router-link>
+        <router-link
+          to="/"
+          class="navbar-item has-background-primary-00 has-text-primary-00-invert"
+          style="text-decoration: underline"
+          ><strong>RideShare</strong></router-link
+        >
       </div>
 
       <div class="navbar-menu">
@@ -12,13 +17,17 @@
 
         <div class="navbar-end">
           <template v-if="$store.state.isAuthenticated">
-            <router-link to="/profile" class="navbar-item">{{ $store.state.user.nickname || 'Profile' }}</router-link>
+            <router-link to="/profile" class="navbar-item">{{
+              $store.state.user.nickname || 'Profile'
+            }}</router-link>
             <template v-if="$store.state.user.is_driver">
               <router-link to="/advertise" class="navbar-item">Advertise Route</router-link>
               <router-link to="/my-rides" class="navbar-item">My Routes</router-link>
             </template>
             <router-link v-else to="/my-rides" class="navbar-item">My Rides</router-link>
-            <button @click="logout" class="navbar-item button is-danger">Logout</button>
+            <button @click="logout" class="navbar-item is-danger button has-text-primary-15-invert">
+              Logout
+            </button>
           </template>
 
           <template v-else>
@@ -37,7 +46,8 @@
 
 <script>
 import axios from 'axios'
-import { getCSRFConfig } from './utils/auth'
+import { toast } from 'bulma-toast'
+import { ensureCSRFToken, getCSRFConfig } from './utils/auth'
 
 export default {
   async beforeCreate() {
@@ -45,7 +55,8 @@ export default {
 
     // Check if user is logged in via session cookie
     try {
-      const userRes = await axios.get("/api/user/")
+      await ensureCSRFToken()
+      const userRes = await axios.get('/api/user/')
       this.$store.commit('setUser', userRes.data)
     } catch (error) {
       // Not logged in, clear auth state
@@ -55,15 +66,16 @@ export default {
   methods: {
     async logout() {
       try {
-        await axios.post("/api/logout/", {}, getCSRFConfig())
+        await axios.post('/api/logout/', {}, getCSRFConfig())
+        toast({ message: 'Log out successfully', type: 'is-success' })
+        this.$store.commit('clearAuth')
+        this.$router.push('/')
       } catch (error) {
         console.error('Logout error:', error)
+        toast({ message: 'Log out failed', type: 'is-danger' })
       }
-
-      this.$store.commit('clearAuth')
-      this.$router.push('/')
-    }
-  }
+    },
+  },
 }
 </script>
 

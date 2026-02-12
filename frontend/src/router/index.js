@@ -18,7 +18,7 @@ const routes = [
     path: '/advertise',
     name: 'advertise',
     component: () => import('../views/AdvertiseView.vue'),
-    meta: { requireLogin: true }
+    meta: { requireLogin: true, requireDriver: true }
   },
   {
     path: '/my-rides',
@@ -39,10 +39,12 @@ const router = createRouter({
   routes
 })
 
-// Navigation Guard: Check if user is logged in before entering certain pages
+// Navigation Guard: Check if user is logged in and has correct role
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requireLogin) && !store.state.isAuthenticated) {
     next('/login')
+  } else if (to.matched.some(record => record.meta.requireDriver) && !store.state.user.is_driver) {
+    next('/')
   } else {
     next()
   }

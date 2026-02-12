@@ -52,6 +52,8 @@ export default {
         this.route = response.data
       } catch (error) {
         console.error(error)
+        const { toast } = await import('bulma-toast')
+        toast({ message: 'Route not found or failed to load.', type: 'is-danger' })
       }
     },
     async reserveSeat() {

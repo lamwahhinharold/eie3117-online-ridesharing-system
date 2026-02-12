@@ -21,7 +21,7 @@
           <div class="column"><label class="label">Car Model</label><input type="text" class="input"
               v-model="form.car_model" required></div>
           <div class="column"><label class="label">Capacity</label><input type="number" class="input"
-              v-model="form.capacity" required></div>
+              v-model="form.capacity" min="1" max="50" required></div>
         </div>
         <div class="field">
           <label class="label">Description</label>
@@ -64,8 +64,8 @@ export default {
         toast({ message: 'Destination is required', type: 'is-warning' })
         return
       }
-      if (this.form.capacity < 1) {
-        toast({ message: 'Capacity must be at least 1', type: 'is-warning' })
+      if (this.form.capacity < 1 || this.form.capacity > 50) {
+        toast({ message: 'Capacity must be between 1 and 50', type: 'is-warning' })
         return
       }
 

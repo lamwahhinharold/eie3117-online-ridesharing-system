@@ -38,7 +38,4 @@ export default createStore({
       state.isAuthenticated = false
     },
   },
-  actions: {
-    // We will call this during login
-  },
 })
