@@ -32,6 +32,12 @@ const routes = [
     component: () => import('../views/RouteDetailView.vue'),
     props: true
   },
+  {
+    path: '/edit-route/:id',
+    name: 'EditRoute',
+    component: () => import('../views/EditRouteView.vue'),
+    meta: { requireLogin: true, requireDriver: true }
+  },
 ]
 
 const router = createRouter({
@@ -39,8 +45,11 @@ const router = createRouter({
   routes
 })
 
-// Navigation Guard: Check if user is logged in and has correct role
-router.beforeEach((to, from, next) => {
+// Navigation Guard: Wait for auth check then verify login/role
+router.beforeEach(async (to, from, next) => {
+  // Wait for the initial session check to complete before guarding
+  await store.authReady
+
   if (to.matched.some(record => record.meta.requireLogin) && !store.state.isAuthenticated) {
     next('/login')
   } else if (to.matched.some(record => record.meta.requireDriver) && !store.state.user.is_driver) {

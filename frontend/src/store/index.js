@@ -1,7 +1,13 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
+import { ensureCSRFToken } from '../utils/auth'
 
-export default createStore({
+let _authReadyResolve
+const authReadyPromise = new Promise((resolve) => {
+  _authReadyResolve = resolve
+})
+
+const store = createStore({
   state: {
     user: {
       id: null,
@@ -12,6 +18,7 @@ export default createStore({
       profile_image: null,
     },
     isAuthenticated: false,
+    authChecked: false,
   },
   mutations: {
     initializeStore(state) {
@@ -37,5 +44,26 @@ export default createStore({
       }
       state.isAuthenticated = false
     },
+    setAuthChecked(state) {
+      state.authChecked = true
+    },
+  },
+  actions: {
+    async checkAuth({ commit }) {
+      try {
+        await ensureCSRFToken()
+        const res = await axios.get('/api/user/')
+        commit('setUser', res.data)
+      } catch {
+        commit('clearAuth')
+      } finally {
+        commit('setAuthChecked')
+        _authReadyResolve()
+      }
+    },
   },
 })
+
+store.authReady = authReadyPromise
+
+export default store

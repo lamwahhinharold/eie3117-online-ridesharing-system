@@ -1,14 +1,15 @@
 from rest_framework import viewsets, permissions, status, mixins
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.throttling import ScopedRateThrottle
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login, logout
 from django.db import transaction
 from .models import Route, Booking
 from .serializers import (
-    RouteSerializer, BookingSerializer, UserSerializer, UserProfileSerializer
+    RouteSerializer, BookingSerializer, UserSerializer, UserProfileSerializer,
+    UserCreateSerializer,
 )
 
 
@@ -29,7 +30,6 @@ def register_view(request):
     """
     Public registration endpoint (replaces djoser).
     """
-    from .serializers import UserCreateSerializer
     serializer = UserCreateSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -95,7 +95,7 @@ def current_user_view(request):
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.select_related('driver').prefetch_related('bookings__rider').order_by('-date', '-time')
     serializer_class = RouteSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
@@ -154,7 +154,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         Endpoint: GET /api/routes/my_advertisements/
         Returns only the routes created by the logged-in driver.
         """
-        routes = Route.objects.filter(driver=request.user)
+        routes = Route.objects.filter(driver=request.user).select_related('driver').prefetch_related('bookings__rider')
         serializer = self.get_serializer(routes, many=True)
         return Response(serializer.data)
 
@@ -174,4 +174,4 @@ class BookingViewSet(mixins.ListModelMixin,
 
     def get_queryset(self):
         # Riders only see their own bookings
-        return Booking.objects.filter(rider=self.request.user)
+        return Booking.objects.filter(rider=self.request.user).select_related('route', 'route__driver').prefetch_related('route__bookings__rider')

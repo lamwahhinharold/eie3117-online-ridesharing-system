@@ -2,5 +2,5 @@ asgiref==3.11.0
 Django==5.2.10
 django-cors-headers==4.9.0
 djangorestframework==3.16.1
-pillow @ file:///home/task_176943331952559/croot/pillow_1769433351127/work
+Pillow>=10.0.0
 sqlparse==0.5.5

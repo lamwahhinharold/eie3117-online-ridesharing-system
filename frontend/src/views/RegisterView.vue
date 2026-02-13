@@ -1,55 +1,108 @@
 <template>
-  <div class="columns is-centered">
-    <div class="column is-4">
-      <h1 class="title">Register</h1>
-      <form @submit.prevent="submitForm">
-        <div class="field">
-          <label class="label">Login ID (Username)</label>
-          <div class="control"><input type="text" class="input" v-model="username" required></div>
+  <div class="columns is-centered is-vcentered" style="min-height: 70vh;">
+    <div class="column is-6-tablet is-5-desktop">
+      <div class="box">
+        <div class="has-text-centered mb-5">
+          <span class="icon is-large has-text-link">
+            <i class="fas fa-user-plus fa-3x"></i>
+          </span>
+          <h1 class="title is-3 mt-3">Create Account</h1>
+          <p class="subtitle is-6 has-text-grey">Join the ridesharing community</p>
         </div>
-        <div class="field">
-          <label class="label">Nick Name</label>
-          <div class="control"><input type="text" class="input" v-model="nickname" required></div>
-        </div>
-        <div class="field">
-          <label class="label">Email</label>
-          <div class="control"><input type="email" class="input" v-model="email" required></div>
-        </div>
-        <div class="field">
-          <label class="label">Password</label>
-          <div class="control"><input type="password" class="input" v-model="password" required></div>
-        </div>
-        <div class="field">
-          <label class="label">User Type</label>
-          <div class="control">
-            <div class="select">
-              <select v-model="is_driver">
-                <option :value="false">Rider</option>
-                <option :value="true">Driver</option>
-              </select>
+
+        <form @submit.prevent="submitForm">
+          <div class="columns is-multiline">
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Login ID (Username)</label>
+                <div class="control has-icons-left">
+                  <input type="text" class="input" placeholder="Choose a username" v-model="username" required>
+                  <span class="icon is-left"><i class="fas fa-user"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Nick Name</label>
+                <div class="control has-icons-left">
+                  <input type="text" class="input" placeholder="Your display name" v-model="nickname" required>
+                  <span class="icon is-left"><i class="fas fa-id-badge"></i></span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="field">
-          <label class="label">Profile Image (Optional)</label>
-          <div class="file has-name is-fullwidth">
-            <label class="file-label">
-              <input class="file-input" type="file" accept="image/*" @change="onFileChange">
-              <span class="file-cta">
-                <span class="file-icon">
-                  <i class="fas fa-upload"></i>
-                </span>
-                <span class="file-label">Choose a file…</span>
-              </span>
-              <span class="file-name">{{ profile_image ? profile_image.name : 'No file chosen' }}</span>
-            </label>
+
+          <div class="field">
+            <label class="label">Email</label>
+            <div class="control has-icons-left">
+              <input type="email" class="input" placeholder="you@example.com" v-model="email" required>
+              <span class="icon is-left"><i class="fas fa-envelope"></i></span>
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <button class="button is-link is-fullwidth">Register</button>
-        </div>
-      </form>
-      Already have an account? <RouterLink to="/login">click here</RouterLink> to login!
+
+          <div class="columns">
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Password</label>
+                <div class="control has-icons-left">
+                  <input type="password" class="input" placeholder="Create a password" v-model="password" required>
+                  <span class="icon is-left"><i class="fas fa-lock"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Confirm Password</label>
+                <div class="control has-icons-left">
+                  <input type="password" class="input" placeholder="Re-enter password" v-model="password2" required>
+                  <span class="icon is-left"><i class="fas fa-lock"></i></span>
+                </div>
+                <p v-if="password2 && password !== password2" class="help is-danger">Passwords do not match</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">User Type</label>
+            <div class="control has-icons-left">
+              <div class="select is-fullwidth">
+                <select v-model="is_driver">
+                  <option :value="false">🚶 Rider</option>
+                  <option :value="true">🚗 Driver</option>
+                </select>
+              </div>
+              <span class="icon is-left"><i class="fas fa-users"></i></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Profile Image <span class="has-text-grey has-text-weight-normal">(Optional)</span></label>
+            <div class="file has-name is-fullwidth is-link is-light">
+              <label class="file-label">
+                <input class="file-input" type="file" accept="image/*" @change="onFileChange">
+                <span class="file-cta">
+                  <span class="file-icon"><i class="fas fa-cloud-upload-alt"></i></span>
+                  <span class="file-label">Choose image…</span>
+                </span>
+                <span class="file-name">{{ profile_image ? profile_image.name : 'No file chosen' }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field mt-5">
+            <button class="button is-link is-fullwidth" :class="{ 'is-loading': submitting }" :disabled="submitting || (password2 && password !== password2)">
+              <span class="icon"><i class="fas fa-user-plus"></i></span>
+              <span>Create Account</span>
+            </button>
+          </div>
+        </form>
+
+        <hr>
+        <p class="has-text-centered">
+          Already have an account?
+          <RouterLink to="/login" class="has-text-link has-text-weight-semibold">Sign in</RouterLink>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -66,17 +119,18 @@ export default {
       nickname: '',
       email: '',
       password: '',
+      password2: '',
       is_driver: false,
-      profile_image: null
+      profile_image: null,
+      submitting: false,
     }
   },
   methods: {
     onFileChange(event) {
       const file = event.target.files[0]
       if (file) {
-        // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-          toast({ message: 'Image must be less than 5MB', type: 'is-warning' })
+          toast({ message: 'Image must be less than 5MB', type: 'is-warning', position: 'top-center' })
           event.target.value = ''
           this.profile_image = null
           return
@@ -85,7 +139,12 @@ export default {
       }
     },
     async submitForm() {
-      // Use FormData for file upload
+      if (this.password !== this.password2) {
+        toast({ message: 'Passwords do not match', type: 'is-danger', position: 'top-center' })
+        return
+      }
+
+      this.submitting = true
       const formData = new FormData()
       formData.append('username', this.username)
       formData.append('nickname', this.nickname)
@@ -98,21 +157,14 @@ export default {
       }
 
       try {
-        // First, fetch the CSRF token from public endpoint
         await ensureCSRFToken()
-
-        // For FormData, don't set Content-Type header - let browser set it automatically
-        // Also import getCookie from utils
         const { getCookie } = await import('../utils/auth')
         const config = {
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-            // Don't set Content-Type, let axios handle it for FormData
-          }
+          headers: { 'X-CSRFToken': getCookie('csrftoken') }
         }
 
         await axios.post('/api/register/', formData, config)
-        toast({ message: 'Account created! Please login.', type: 'is-success' })
+        toast({ message: 'Account created! Please login.', type: 'is-success', position: 'top-center' })
         this.$router.push('/login')
       } catch (error) {
         console.error('Registration error:', error)
@@ -121,7 +173,9 @@ export default {
                         error.response?.data?.profile_image?.[0] ||
                         error.response?.data?.detail ||
                         'Something went wrong'
-        toast({ message: errorMsg, type: 'is-danger' })
+        toast({ message: errorMsg, type: 'is-danger', position: 'top-center' })
+      } finally {
+        this.submitting = false
       }
     }
   }
