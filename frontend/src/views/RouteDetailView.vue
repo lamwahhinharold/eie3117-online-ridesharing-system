@@ -130,6 +130,7 @@
 import axios from 'axios'
 import { toast } from 'bulma-toast'
 import { getCSRFConfig } from '../utils/auth'
+import { isExpired as isRouteExpired, seatBarClass as routeSeatBarClass, formatDate } from '../utils/route'
 
 export default {
   data() {
@@ -137,27 +138,18 @@ export default {
   },
   computed: {
     isExpired() {
-      if (!this.route) return false
-      const now = new Date()
-      const routeDateTime = new Date(`${this.route.date}T${this.route.time}`)
-      return routeDateTime < now
+      return isRouteExpired(this.route)
     },
     seatBarClass() {
       if (!this.route) return ''
-      const ratio = this.route.remaining_seats / this.route.capacity
-      if (ratio === 0) return 'is-danger'
-      if (ratio <= 0.3) return 'is-warning'
-      return 'is-success'
+      return routeSeatBarClass(this.route)
     },
   },
   mounted() {
     this.getRouteDetail()
   },
   methods: {
-    formatDate(dateString) {
-      const date = new Date(dateString + 'T00:00:00')
-      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
-    },
+    formatDate,
     async getRouteDetail() {
       const id = this.$route.params.id
       try {

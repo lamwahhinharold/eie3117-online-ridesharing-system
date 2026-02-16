@@ -148,6 +148,7 @@
 
 <script>
 import axios from 'axios'
+import { isExpired, seatBarClass, formatDate } from '../utils/route'
 
 export default {
   data() {
@@ -215,22 +216,9 @@ export default {
         this.getRoutes(page)
       }
     },
-    isExpired(route) {
-      if (!route) return false
-      const now = new Date()
-      const routeDateTime = new Date(`${route.date}T${route.time}`)
-      return routeDateTime < now
-    },
-    seatBarClass(route) {
-      const ratio = route.remaining_seats / route.capacity
-      if (ratio === 0) return 'is-danger'
-      if (ratio <= 0.3) return 'is-warning'
-      return 'is-success'
-    },
-    formatDate(dateString) {
-      const date = new Date(dateString + 'T00:00:00')
-      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
-    }
+    isExpired,
+    seatBarClass,
+    formatDate,
   }
 }
 </script>
