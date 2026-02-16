@@ -5,12 +5,19 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import ScopedRateThrottle
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
+
+
 from django.db import transaction
 from .models import Route, Booking
 from .serializers import (
     RouteSerializer, BookingSerializer, UserSerializer, UserProfileSerializer,
     UserCreateSerializer,
 )
+
+
+class LoginRateThrottle(ScopedRateThrottle):
+    """5 requests/minute for login attempts (uses 'login' scope from settings)."""
+    scope = 'login'
 
 
 @api_view(['GET'])
@@ -42,6 +49,7 @@ def register_view(request):
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
+@throttle_classes([LoginRateThrottle])
 def login_view(request):
     """
     Session-based login using cookies (as per requirement).
