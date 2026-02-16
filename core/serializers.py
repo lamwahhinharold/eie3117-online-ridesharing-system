@@ -60,6 +60,7 @@ class RouteSerializer(serializers.ModelSerializer):
     driver = serializers.ReadOnlyField(source="driver.id")
     remaining_seats = serializers.ReadOnlyField()
     is_available = serializers.ReadOnlyField()
+    is_expired = serializers.ReadOnlyField()
     passengers = serializers.SerializerMethodField()
 
     class Meta:
@@ -76,6 +77,7 @@ class RouteSerializer(serializers.ModelSerializer):
             "capacity",
             "remaining_seats",
             "is_available",
+            "is_expired",
             "description",
             "passengers",
         )

@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+import datetime
 
 
 class User(AbstractUser):
@@ -32,8 +34,15 @@ class Route(models.Model):
 
     @property
     def is_available(self):
-        # Route becomes unavailable if capacity is reached
-        return self.remaining_seats > 0
+        # Route becomes unavailable if capacity is reached or route is expired
+        return self.remaining_seats > 0 and not self.is_expired
+
+    @property
+    def is_expired(self):
+        """True if the route's date/time is in the past."""
+        route_datetime = datetime.datetime.combine(self.date, self.time)
+        route_datetime = timezone.make_aware(route_datetime) if timezone.is_naive(route_datetime) else route_datetime
+        return route_datetime < timezone.now()
 
     def __str__(self):
         return f"{self.start_location} to {self.destination} ({self.date})"

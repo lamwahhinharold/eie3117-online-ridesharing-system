@@ -107,6 +107,40 @@ class RouteViewSet(viewsets.ModelViewSet):
     serializer_class = RouteSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_queryset(self):
+        """
+        Optionally filter routes by status via ?status= query param.
+        Values: 'available' (not full and not expired), 'expired', 'full', or omit for all.
+        """
+        qs = super().get_queryset()
+        status_filter = self.request.query_params.get('status')
+        if status_filter == 'available':
+            from django.utils import timezone
+            import datetime
+            now = timezone.now()
+            qs = qs.filter(
+                date__gte=now.date(),
+            ).exclude(
+                # Exclude routes whose date is today but time has already passed
+                date=now.date(),
+                time__lt=now.time(),
+            )
+            # Exclude fully booked routes (remaining_seats <= 0)
+            from django.db.models import Count, F
+            qs = qs.annotate(booked=Count('bookings')).filter(booked__lt=F('capacity'))
+        elif status_filter == 'expired':
+            from django.utils import timezone
+            now = timezone.now()
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(date__lt=now.date()) |
+                Q(date=now.date(), time__lt=now.time())
+            )
+        elif status_filter == 'full':
+            from django.db.models import Count, F
+            qs = qs.annotate(booked=Count('bookings')).filter(booked__gte=F('capacity'))
+        return qs
+
     def perform_create(self, serializer):
         # Only drivers can advertise routes
         if not self.request.user.is_driver:
