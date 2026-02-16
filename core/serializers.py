@@ -66,6 +66,12 @@ class RouteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Capacity must be at least 1.")
         if value > 50:
             raise serializers.ValidationError("Capacity cannot exceed 50.")
+        if self.instance:  # update
+            current_bookings = self.instance.bookings.count()
+            if value < current_bookings:
+                raise serializers.ValidationError(
+                    f"Cannot reduce capacity below {current_bookings} (current bookings)."
+                )
         return value
 
     def validate_date(self, value):
