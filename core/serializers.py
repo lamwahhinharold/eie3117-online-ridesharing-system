@@ -2,6 +2,23 @@ from rest_framework import serializers
 from django.utils import timezone
 from .models import User, Route, Booking
 
+ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+
+def validate_profile_image(value):
+    """Shared validator for profile image uploads (size + content type)."""
+    if value is None:
+        return value
+    if value.size > MAX_IMAGE_SIZE:
+        raise serializers.ValidationError("Image must be less than 5 MB.")
+    if hasattr(value, 'content_type') and value.content_type not in ALLOWED_IMAGE_TYPES:
+        raise serializers.ValidationError(
+            f"Unsupported image type '{value.content_type}'. "
+            f"Allowed types: {', '.join(ALLOWED_IMAGE_TYPES)}."
+        )
+    return value
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,6 +33,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ("nickname", "email", "profile_image")
 
+    def validate_profile_image(self, value):
+        return validate_profile_image(value)
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -25,6 +45,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username", "nickname", "email", "password", "is_driver", "profile_image")
+
+    def validate_profile_image(self, value):
+        return validate_profile_image(value)
 
     def create(self, validated_data):
         password = validated_data.pop("password")
