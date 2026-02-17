@@ -5,7 +5,8 @@
       <div class="hero-body">
         <div class="container">
           <h1 class="title is-3">
-            <i class="fas fa-suitcase-rolling mr-2"></i> My Rides
+            <i class="fas" :class="$store.state.user.is_driver ? 'fa-route' : 'fa-suitcase-rolling'" style="margin-right:.5rem"></i>
+            {{ $store.state.user.is_driver ? 'My Routes' : 'My Rides' }}
           </h1>
           <p class="subtitle is-6">{{ $store.state.user.is_driver ? 'Routes you\'re driving' : 'Your reserved rides' }}</p>
         </div>
@@ -16,7 +17,7 @@
       <!-- Loading -->
       <div v-if="loading" class="has-text-centered py-6">
         <span class="icon is-large has-text-link"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
-        <p class="mt-3 has-text-grey">Loading your rides...</p>
+        <p class="mt-3 has-text-grey">{{ $store.state.user.is_driver ? 'Loading your routes...' : 'Loading your rides...' }}</p>
       </div>
 
       <DriverDashboard
