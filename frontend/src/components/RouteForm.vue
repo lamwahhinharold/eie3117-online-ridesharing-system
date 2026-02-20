@@ -1,7 +1,10 @@
 <template>
   <form @submit.prevent="handleSubmit" class="box">
     <!-- Route endpoints -->
-    <p class="is-size-5 has-text-weight-semibold mb-3"><i class="fas fa-route has-text-link mr-2"></i> Route</p>
+    <div class="form-section-header">
+      <div class="form-section-icon"><i class="fas fa-route"></i></div>
+      <span>Route</span>
+    </div>
     <div class="field">
       <label class="label">Starting Location</label>
       <div class="control has-icons-left">
@@ -20,7 +23,10 @@
     <hr>
 
     <!-- Schedule -->
-    <p class="is-size-5 has-text-weight-semibold mb-3"><i class="fas fa-calendar-alt has-text-link mr-2"></i> Schedule</p>
+    <div class="form-section-header">
+      <div class="form-section-icon"><i class="fas fa-calendar-alt"></i></div>
+      <span>Schedule</span>
+    </div>
     <div class="columns">
       <div class="column">
         <div class="field">
@@ -45,7 +51,10 @@
     <hr>
 
     <!-- Vehicle -->
-    <p class="is-size-5 has-text-weight-semibold mb-3"><i class="fas fa-car has-text-link mr-2"></i> Vehicle</p>
+    <div class="form-section-header">
+      <div class="form-section-icon"><i class="fas fa-car"></i></div>
+      <span>Vehicle</span>
+    </div>
     <div class="columns">
       <div class="column">
         <div class="field">
@@ -155,3 +164,27 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.form-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+.form-section-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+</style>

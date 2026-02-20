@@ -1,13 +1,13 @@
 <template>
-  <div class="columns is-centered is-vcentered" style="min-height: 70vh;">
-    <div class="column is-5-tablet is-4-desktop">
+  <div class="auth-wrapper">
+    <div class="auth-card">
       <div class="box">
-        <div class="has-text-centered mb-5">
-          <span class="icon is-large has-text-link">
-            <i class="fas fa-car-side fa-3x"></i>
-          </span>
-          <h1 class="title is-3 mt-3">Welcome Back</h1>
-          <p class="subtitle is-6 has-text-grey">Sign in to your account</p>
+        <div class="auth-header">
+          <div class="auth-icon">
+            <i class="fas fa-car-side"></i>
+          </div>
+          <h1 class="title is-4">Welcome Back</h1>
+          <p class="subtitle is-6">Sign in to continue to RideShare</p>
         </div>
 
         <form @submit.prevent="submitForm">
@@ -34,7 +34,7 @@
         </form>
 
         <hr>
-        <p class="has-text-centered">
+        <p class="has-text-centered" style="font-size: 0.9rem;">
           Don't have an account?
           <RouterLink to="/register" class="has-text-link has-text-weight-semibold">Register here</RouterLink>
         </p>
@@ -77,3 +77,36 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 2rem 1rem;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.auth-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+.auth-header .title {
+  margin-bottom: 0.25rem;
+}
+</style>

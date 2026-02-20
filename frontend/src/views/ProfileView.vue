@@ -1,11 +1,9 @@
 <template>
   <div>
-    <section class="hero is-link is-small mb-5">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title is-3"><i class="fas fa-id-card mr-2"></i> My Profile</h1>
-          <p class="subtitle is-6">Manage your account details</p>
-        </div>
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="title"><i class="fas fa-id-card mr-2"></i> My Profile</h1>
+        <p class="subtitle">Manage your account details</p>
       </div>
     </section>
 
@@ -14,13 +12,13 @@
         <div class="column is-6">
           <div class="box">
             <!-- Avatar -->
-            <div class="has-text-centered mb-5">
-              <figure class="image is-128x128 is-inline-block">
-                <img v-if="getProfileImageUrl()" :src="getProfileImageUrl()" :alt="user.username" class="is-rounded" style="object-fit: cover; width: 128px; height: 128px;">
-                <img v-else src="https://via.placeholder.com/128?text=👤" :alt="user.username" class="is-rounded">
+            <div class="profile-avatar-section">
+              <figure class="image is-128x128" style="margin: 0 auto;">
+                <img v-if="getProfileImageUrl()" :src="getProfileImageUrl()" :alt="user.username" class="is-rounded profile-avatar">
+                <img v-else src="https://via.placeholder.com/128?text=%F0%9F%91%A4" :alt="user.username" class="is-rounded profile-avatar">
               </figure>
-              <p class="is-size-5 has-text-weight-semibold mt-3">{{ user.nickname || user.username }}</p>
-              <span class="tag is-medium mt-1" :class="user.is_driver ? 'is-link is-light' : 'is-success is-light'">
+              <p class="profile-name">{{ user.nickname || user.username }}</p>
+              <span class="tag is-medium" :class="user.is_driver ? 'is-info' : 'is-success'">
                 <i class="fas mr-1" :class="user.is_driver ? 'fa-car' : 'fa-walking'"></i>
                 {{ user.is_driver ? 'Driver' : 'Rider' }}
               </span>
@@ -30,25 +28,25 @@
 
             <!-- Display Mode -->
             <div v-if="!isEditing">
-              <div class="is-flex is-align-items-center mb-4">
-                <span class="icon has-text-link mr-3"><i class="fas fa-user"></i></span>
+              <div class="profile-field">
+                <div class="profile-field-icon"><i class="fas fa-user"></i></div>
                 <div>
-                  <p class="is-size-7 has-text-grey">Username</p>
-                  <p class="has-text-weight-semibold">{{ user.username }}</p>
+                  <p class="profile-field-label">Username</p>
+                  <p class="profile-field-value">{{ user.username }}</p>
                 </div>
               </div>
-              <div class="is-flex is-align-items-center mb-4">
-                <span class="icon has-text-link mr-3"><i class="fas fa-id-badge"></i></span>
+              <div class="profile-field">
+                <div class="profile-field-icon"><i class="fas fa-id-badge"></i></div>
                 <div>
-                  <p class="is-size-7 has-text-grey">Nickname</p>
-                  <p class="has-text-weight-semibold">{{ user.nickname || '-' }}</p>
+                  <p class="profile-field-label">Nickname</p>
+                  <p class="profile-field-value">{{ user.nickname || '-' }}</p>
                 </div>
               </div>
-              <div class="is-flex is-align-items-center mb-4">
-                <span class="icon has-text-link mr-3"><i class="fas fa-envelope"></i></span>
+              <div class="profile-field">
+                <div class="profile-field-icon"><i class="fas fa-envelope"></i></div>
                 <div>
-                  <p class="is-size-7 has-text-grey">Email</p>
-                  <p class="has-text-weight-semibold">{{ user.email }}</p>
+                  <p class="profile-field-label">Email</p>
+                  <p class="profile-field-value">{{ user.email }}</p>
                 </div>
               </div>
 
@@ -212,3 +210,49 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.profile-avatar-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.profile-avatar {
+  object-fit: cover;
+  width: 128px;
+  height: 128px;
+  border: 3px solid var(--border);
+}
+.profile-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.profile-field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.profile-field-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.profile-field-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.1rem;
+}
+.profile-field-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+</style>

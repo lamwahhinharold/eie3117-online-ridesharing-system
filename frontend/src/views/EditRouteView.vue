@@ -1,19 +1,17 @@
 <template>
   <div>
-    <section class="hero is-link is-small mb-5">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title is-3"><i class="fas fa-pen-to-square mr-2"></i> Edit Route</h1>
-          <p class="subtitle is-6">Update your ride details</p>
-        </div>
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="title"><i class="fas fa-pen-to-square mr-2"></i> Edit Route</h1>
+        <p class="subtitle">Update your ride details</p>
       </div>
     </section>
 
     <div class="container">
       <!-- Loading -->
       <div v-if="loading" class="has-text-centered py-6">
-        <span class="icon is-large has-text-link"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
-        <p class="mt-3 has-text-grey">Loading route...</p>
+        <span class="icon is-large" style="color: var(--primary);"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
+        <p class="mt-3" style="color: var(--text-secondary);">Loading route…</p>
       </div>
 
       <div v-else class="columns is-centered">

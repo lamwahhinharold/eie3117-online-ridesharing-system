@@ -1,11 +1,9 @@
 <template>
   <div>
-    <section class="hero is-link is-small mb-5">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title is-3"><i class="fas fa-bullhorn mr-2"></i> Advertise a Route</h1>
-          <p class="subtitle is-6">Share your ride with others</p>
-        </div>
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="title"><i class="fas fa-bullhorn mr-2"></i> Advertise a Route</h1>
+        <p class="subtitle">Share your ride with others</p>
       </div>
     </section>
 

@@ -1,36 +1,38 @@
 <template>
   <div>
     <!-- Loading -->
-    <div v-if="!route" class="has-text-centered py-6">
-      <span class="icon is-large has-text-link"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
-      <p class="mt-3 has-text-grey">Loading route details...</p>
+    <div v-if="!route" class="has-text-centered py-6" style="margin-top: 4rem;">
+      <span class="icon is-large" style="color: var(--primary);"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
+      <p class="mt-3" style="color: var(--text-secondary);">Loading route details…</p>
     </div>
 
-    <div v-else class="container">
-      <!-- Back button -->
-      <div class="mb-4">
-        <router-link to="/" class="button is-light is-small">
-          <span class="icon"><i class="fas fa-arrow-left"></i></span>
-          <span>Back to Routes</span>
-        </router-link>
-      </div>
+    <template v-else>
+      <!-- Hero with route info -->
+      <section class="page-hero">
+        <div class="container">
+          <router-link to="/" class="back-link">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Routes
+          </router-link>
+          <div class="route-hero-endpoints">
+            <div class="route-hero-point">
+              <span class="route-hero-dot route-hero-dot--start"></span>
+              <span>{{ route.start_location }}</span>
+            </div>
+            <i class="fas fa-arrow-right route-hero-arrow"></i>
+            <div class="route-hero-point">
+              <span class="route-hero-dot route-hero-dot--end"></span>
+              <span>{{ route.destination }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div class="columns is-centered">
-        <div class="column is-8">
-          <div class="box" :class="{ 'has-background-warning-light': isExpired }">
-            <!-- Route header -->
-            <div class="is-flex is-justify-content-space-between is-align-items-start mb-2">
-              <div>
-                <p class="is-size-6 has-text-grey mb-1">
-                  <i class="fas fa-map-marker-alt has-text-link mr-1"></i> From
-                </p>
-                <h1 class="title is-4 mb-2">{{ route.start_location }}</h1>
-                <p class="is-size-6 has-text-grey mb-1">
-                  <i class="fas fa-flag-checkered has-text-success mr-1"></i> To
-                </p>
-                <h1 class="title is-4 mb-0">{{ route.destination }}</h1>
-              </div>
-              <div>
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-8">
+            <div class="box detail-box" :class="{ 'is-expired': isExpired }">
+              <!-- Status badge -->
+              <div class="has-text-right mb-4">
                 <span v-if="isExpired" class="tag is-warning is-medium">
                   <i class="fas fa-clock mr-1"></i> Expired
                 </span>
@@ -41,88 +43,86 @@
                   <i class="fas fa-check mr-1"></i> Available
                 </span>
               </div>
-            </div>
 
-            <hr>
-
-            <!-- Info grid -->
-            <div class="columns is-multiline mb-4">
-              <div class="column is-6">
-                <div class="is-flex is-align-items-center mb-3">
-                  <span class="icon has-text-link mr-2"><i class="fas fa-user"></i></span>
-                  <div>
-                    <p class="is-size-7 has-text-grey">Driver</p>
-                    <p class="has-text-weight-semibold">{{ route.driver_name }}</p>
+              <!-- Info grid -->
+              <div class="columns is-multiline mb-4">
+                <div class="column is-6">
+                  <div class="detail-item">
+                    <div class="detail-item-icon"><i class="fas fa-user"></i></div>
+                    <div>
+                      <p class="detail-label">Driver</p>
+                      <p class="detail-value">{{ route.driver_name }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="column is-6">
+                  <div class="detail-item">
+                    <div class="detail-item-icon"><i class="fas fa-car"></i></div>
+                    <div>
+                      <p class="detail-label">Vehicle</p>
+                      <p class="detail-value">{{ route.car_model }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="column is-6">
+                  <div class="detail-item">
+                    <div class="detail-item-icon"><i class="fas fa-calendar"></i></div>
+                    <div>
+                      <p class="detail-label">Date</p>
+                      <p class="detail-value">{{ formatDate(route.date) }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="column is-6">
+                  <div class="detail-item">
+                    <div class="detail-item-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                      <p class="detail-label">Time</p>
+                      <p class="detail-value">{{ route.time }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="column is-6">
-                <div class="is-flex is-align-items-center mb-3">
-                  <span class="icon has-text-link mr-2"><i class="fas fa-car"></i></span>
-                  <div>
-                    <p class="is-size-7 has-text-grey">Vehicle</p>
-                    <p class="has-text-weight-semibold">{{ route.car_model }}</p>
-                  </div>
+
+              <!-- Description -->
+              <div class="mb-5" v-if="route.description">
+                <p class="detail-label mb-1"><i class="fas fa-align-left mr-1"></i> Description</p>
+                <p style="font-size: 0.93rem; line-height: 1.6;">{{ route.description }}</p>
+              </div>
+
+              <!-- Seat capacity bar -->
+              <div class="mb-5">
+                <div class="is-flex is-justify-content-space-between mb-1">
+                  <span class="has-text-weight-semibold" style="font-size: 0.9rem;"><i class="fas fa-chair mr-1"></i> Seat Availability</span>
+                  <span style="color: var(--text-secondary); font-size: 0.88rem;">{{ route.remaining_seats }} / {{ route.capacity }} remaining</span>
                 </div>
+                <progress class="progress" :class="seatBarClass" :value="route.remaining_seats" :max="route.capacity"></progress>
               </div>
-              <div class="column is-6">
-                <div class="is-flex is-align-items-center mb-3">
-                  <span class="icon has-text-link mr-2"><i class="fas fa-calendar"></i></span>
-                  <div>
-                    <p class="is-size-7 has-text-grey">Date</p>
-                    <p class="has-text-weight-semibold">{{ formatDate(route.date) }}</p>
-                  </div>
-                </div>
+
+              <!-- CTA section -->
+              <div class="notification is-warning is-light" v-if="isExpired">
+                <i class="fas fa-exclamation-triangle mr-2"></i> This route has expired and can no longer be booked.
               </div>
-              <div class="column is-6">
-                <div class="is-flex is-align-items-center mb-3">
-                  <span class="icon has-text-link mr-2"><i class="fas fa-clock"></i></span>
-                  <div>
-                    <p class="is-size-7 has-text-grey">Time</p>
-                    <p class="has-text-weight-semibold">{{ route.time }}</p>
-                  </div>
-                </div>
+
+              <div class="notification is-danger is-light" v-else-if="!route.is_available">
+                <i class="fas fa-ban mr-2"></i> This route is currently full. Check back later for cancellations.
               </div>
-            </div>
 
-            <!-- Description -->
-            <div class="mb-4" v-if="route.description">
-              <p class="is-size-7 has-text-grey mb-1"><i class="fas fa-align-left mr-1"></i> Description</p>
-              <p>{{ route.description }}</p>
-            </div>
+              <button v-else-if="$store.state.isAuthenticated && !$store.state.user.is_driver" @click="reserveSeat"
+                class="button is-link is-medium is-fullwidth" :class="{ 'is-loading': reserving }" :disabled="reserving">
+                <span class="icon"><i class="fas fa-ticket-alt"></i></span>
+                <span>Reserve a Seat</span>
+              </button>
 
-            <!-- Seat capacity bar -->
-            <div class="mb-5">
-              <div class="is-flex is-justify-content-space-between mb-1">
-                <span class="has-text-weight-semibold"><i class="fas fa-chair mr-1"></i> Seat Availability</span>
-                <span>{{ route.remaining_seats }} / {{ route.capacity }} remaining</span>
+              <div v-else-if="!$store.state.isAuthenticated" class="notification is-info is-light has-text-centered">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Please <router-link to="/login" class="has-text-weight-semibold">login</router-link> as a rider to reserve a seat.
               </div>
-              <progress class="progress" :class="seatBarClass" :value="route.remaining_seats" :max="route.capacity"></progress>
-            </div>
-
-            <!-- CTA section -->
-            <div class="notification is-warning is-light" v-if="isExpired">
-              <i class="fas fa-exclamation-triangle mr-2"></i> This route has expired and can no longer be booked.
-            </div>
-
-            <div class="notification is-danger is-light" v-else-if="!route.is_available">
-              <i class="fas fa-ban mr-2"></i> This route is currently full. Check back later for cancellations.
-            </div>
-
-            <button v-else-if="$store.state.isAuthenticated && !$store.state.user.is_driver" @click="reserveSeat"
-              class="button is-link is-medium is-fullwidth" :class="{ 'is-loading': reserving }" :disabled="reserving">
-              <span class="icon"><i class="fas fa-ticket-alt"></i></span>
-              <span>Reserve a Seat</span>
-            </button>
-
-            <div v-else-if="!$store.state.isAuthenticated" class="notification is-info is-light has-text-centered">
-              <i class="fas fa-sign-in-alt mr-2"></i>
-              Please <router-link to="/login" class="has-text-weight-semibold">login</router-link> as a rider to reserve a seat.
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -179,3 +179,74 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  transition: color 0.2s ease;
+}
+.back-link:hover { color: #fff; }
+
+.route-hero-endpoints {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.route-hero-point {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+.route-hero-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.route-hero-dot--start { background: rgba(255,255,255,0.8); }
+.route-hero-dot--end   { background: var(--success); }
+.route-hero-arrow {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+}
+
+.detail-box.is-expired {
+  opacity: 0.75;
+}
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.detail-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.detail-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.1rem;
+}
+.detail-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+</style>

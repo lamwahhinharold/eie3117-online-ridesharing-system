@@ -1,23 +1,21 @@
 <template>
   <div>
     <!-- Hero -->
-    <section class="hero is-link is-small mb-5">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title is-3">
-            <i class="fas" :class="$store.state.user.is_driver ? 'fa-route' : 'fa-suitcase-rolling'" style="margin-right:.5rem"></i>
-            {{ $store.state.user.is_driver ? 'My Routes' : 'My Rides' }}
-          </h1>
-          <p class="subtitle is-6">{{ $store.state.user.is_driver ? 'Routes you\'re driving' : 'Your reserved rides' }}</p>
-        </div>
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="title">
+          <i class="fas" :class="$store.state.user.is_driver ? 'fa-route' : 'fa-suitcase-rolling'" style="margin-right:.5rem"></i>
+          {{ $store.state.user.is_driver ? 'My Routes' : 'My Rides' }}
+        </h1>
+        <p class="subtitle">{{ $store.state.user.is_driver ? 'Routes you\'re driving' : 'Your reserved rides' }}</p>
       </div>
     </section>
 
     <div class="container">
       <!-- Loading -->
       <div v-if="loading" class="has-text-centered py-6">
-        <span class="icon is-large has-text-link"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
-        <p class="mt-3 has-text-grey">{{ $store.state.user.is_driver ? 'Loading your routes...' : 'Loading your rides...' }}</p>
+        <span class="icon is-large" style="color: var(--primary);"><i class="fas fa-spinner fa-pulse fa-2x"></i></span>
+        <p class="mt-3" style="color: var(--text-secondary);">{{ $store.state.user.is_driver ? 'Loading your routes…' : 'Loading your rides…' }}</p>
       </div>
 
       <DriverDashboard
