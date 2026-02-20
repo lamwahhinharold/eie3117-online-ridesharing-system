@@ -41,7 +41,7 @@
                 <span class="icon has-text-link mr-3"><i class="fas fa-id-badge"></i></span>
                 <div>
                   <p class="is-size-7 has-text-grey">Nickname</p>
-                  <p class="has-text-weight-semibold">{{ user.nickname || '—' }}</p>
+                  <p class="has-text-weight-semibold">{{ user.nickname || '-' }}</p>
                 </div>
               </div>
               <div class="is-flex is-align-items-center mb-4">

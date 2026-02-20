@@ -35,7 +35,7 @@ def get_csrf_token(request):
 @permission_classes([permissions.AllowAny])
 def register_view(request):
     """
-    Public registration endpoint (replaces djoser).
+    Public registration endpoint.
     """
     serializer = UserCreateSerializer(data=request.data)
     if serializer.is_valid():
@@ -52,7 +52,7 @@ def register_view(request):
 @throttle_classes([LoginRateThrottle])
 def login_view(request):
     """
-    Session-based login using cookies (as per requirement).
+    Session-based login using cookies.
     """
     username = request.data.get('username')
     password = request.data.get('password')
@@ -76,7 +76,7 @@ def login_view(request):
 @permission_classes([permissions.IsAuthenticated])
 def logout_view(request):
     """
-    Session-based logout, deletes cookie (as per requirement).
+    Session-based logout, invalidates the current session.
     """
     logout(request)
     return Response({'detail': 'Logged out successfully'})
@@ -93,7 +93,7 @@ def current_user_view(request):
         return Response(serializer.data)
 
     elif request.method == 'PATCH':
-        # Use profile serializer that excludes is_driver and username (read-only)
+        # Use profile serializer that excludes read-only fields
         serializer = UserProfileSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

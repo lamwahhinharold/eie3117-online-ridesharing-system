@@ -28,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """Serializer for profile updates — only allows safe fields."""
+    """Serializer for profile updates, only allows safe fields."""
     class Meta:
         model = User
         fields = ("nickname", "email", "profile_image")

@@ -36,6 +36,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").sp
 # Application definition
 
 INSTALLED_APPS = [
+    "django_extensions",
     "corsheaders",
     "rest_framework",
     "django.contrib.admin",
@@ -167,8 +168,12 @@ REST_FRAMEWORK = {
 }
 
 # Session and Cookie Configuration for persistent login
-SESSION_COOKIE_AGE = 1209600  # 2 weeks (as per requirement: persists after browser close)
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Explicitly persist sessions across browser restarts
+SESSION_COOKIE_AGE = (
+    1209600  # 2 weeks (as per requirement: persists after browser close)
+)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = (
+    False  # Explicitly persist sessions across browser restarts
+)
 SESSION_COOKIE_SECURE = not DEBUG  # True in production with HTTPS
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access (security)
 SESSION_COOKIE_SAMESITE = "Lax"
@@ -186,5 +191,3 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8080",
     "http://127.0.0.1:8080",
 ]
-
-
