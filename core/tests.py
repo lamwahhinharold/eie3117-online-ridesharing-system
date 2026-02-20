@@ -1,4 +1,5 @@
 from django.test import TestCase, override_settings
+from django.core.cache import cache
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import User, Route, Booking
@@ -25,6 +26,7 @@ class AuthTests(TestCase):
     """Tests for registration, login, logout, and session persistence."""
 
     def setUp(self):
+        cache.clear()  # Reset throttle state between tests
         self.client = APIClient()
         # Fetch CSRF token first
         self.client.get('/api/csrf/')
@@ -123,6 +125,7 @@ class RouteTests(TestCase):
     """Tests for route CRUD and listing."""
 
     def setUp(self):
+        cache.clear()  # Reset throttle state between tests
         self.client = APIClient()
         self.client.get('/api/csrf/')
         self.driver = User.objects.create_user(
@@ -248,6 +251,7 @@ class BookingTests(TestCase):
     """Tests for joining routes, cancelling, and capacity enforcement."""
 
     def setUp(self):
+        cache.clear()  # Reset throttle state between tests
         self.client = APIClient()
         self.client.get('/api/csrf/')
         self.driver = User.objects.create_user(

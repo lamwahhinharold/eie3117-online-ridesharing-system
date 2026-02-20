@@ -100,7 +100,7 @@ class RouteSerializer(serializers.ModelSerializer):
         return value
 
     def validate_date(self, value):
-        if value < timezone.now().date():
+        if value < timezone.localdate():
             raise serializers.ValidationError("Route date cannot be in the past.")
         return value
 

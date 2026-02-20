@@ -5,9 +5,10 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import ScopedRateThrottle
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
-
-
 from django.db import transaction
+from django.db.models import Count, F, Q
+from django.utils import timezone
+
 from .models import Route, Booking
 from .serializers import (
     RouteSerializer, BookingSerializer, UserSerializer, UserProfileSerializer,
@@ -115,9 +116,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         qs = super().get_queryset()
         status_filter = self.request.query_params.get('status')
         if status_filter == 'available':
-            from django.utils import timezone
-            import datetime
-            now = timezone.now()
+            now = timezone.localtime()
             qs = qs.filter(
                 date__gte=now.date(),
             ).exclude(
@@ -126,18 +125,14 @@ class RouteViewSet(viewsets.ModelViewSet):
                 time__lt=now.time(),
             )
             # Exclude fully booked routes (remaining_seats <= 0)
-            from django.db.models import Count, F
             qs = qs.annotate(booked=Count('bookings')).filter(booked__lt=F('capacity'))
         elif status_filter == 'expired':
-            from django.utils import timezone
-            now = timezone.now()
-            from django.db.models import Q
+            now = timezone.localtime()
             qs = qs.filter(
                 Q(date__lt=now.date()) |
                 Q(date=now.date(), time__lt=now.time())
             )
         elif status_filter == 'full':
-            from django.db.models import Count, F
             qs = qs.annotate(booked=Count('bookings')).filter(booked__gte=F('capacity'))
         return qs
 
