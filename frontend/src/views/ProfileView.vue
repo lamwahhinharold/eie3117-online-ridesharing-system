@@ -180,13 +180,7 @@ export default {
           formData.append('profile_image', this.editForm.profile_image)
         }
 
-        await axios.patch('/api/user/', formData, {
-          ...getCSRFConfig(),
-          headers: {
-            ...getCSRFConfig().headers,
-            'Content-Type': 'multipart/form-data'
-          }
-        })
+        await axios.patch('/api/user/', formData, getCSRFConfig())
 
         const response = await axios.get('/api/user/')
         this.$store.commit('setUser', response.data)

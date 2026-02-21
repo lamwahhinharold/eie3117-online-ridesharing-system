@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 import axios from 'axios'
-import { ensureCSRFToken } from '../utils/auth'
+
 
 let _authReadyResolve
 const authReadyPromise = new Promise((resolve) => {
@@ -51,7 +51,6 @@ const store = createStore({
   actions: {
     async checkAuth({ commit }) {
       try {
-        await ensureCSRFToken()
         const res = await axios.get('/api/user/')
         commit('setUser', res.data)
       } catch {

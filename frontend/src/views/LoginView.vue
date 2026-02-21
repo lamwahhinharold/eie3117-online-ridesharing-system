@@ -45,7 +45,7 @@
 
 <script>
 import axios from 'axios'
-import { ensureCSRFToken, getCSRFConfig } from '../utils/auth'
+
 
 export default {
   data() {
@@ -57,8 +57,7 @@ export default {
       const formData = { username: this.username, password: this.password }
 
       try {
-        await ensureCSRFToken()
-        const response = await axios.post("/api/login/", formData, getCSRFConfig())
+        const response = await axios.post("/api/login/", formData)
 
         this.$store.commit('setUser', response.data.user)
         this.$store.commit('setAuthenticated', true)

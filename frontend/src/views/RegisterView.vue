@@ -16,18 +16,20 @@
               <div class="field">
                 <label class="label">Login ID (Username)</label>
                 <div class="control has-icons-left">
-                  <input type="text" class="input" placeholder="Choose a username" v-model="username" required>
+                  <input type="text" class="input" :class="{ 'is-danger': errors.username }" placeholder="Choose a username" v-model="username" required>
                   <span class="icon is-left"><i class="fas fa-user"></i></span>
                 </div>
+                <p v-if="errors.username" class="help is-danger">{{ errors.username }}</p>
               </div>
             </div>
             <div class="column is-6">
               <div class="field">
                 <label class="label">Nick Name</label>
                 <div class="control has-icons-left">
-                  <input type="text" class="input" placeholder="Your display name" v-model="nickname" required>
+                  <input type="text" class="input" :class="{ 'is-danger': errors.nickname }" placeholder="Your display name" v-model="nickname" required>
                   <span class="icon is-left"><i class="fas fa-id-badge"></i></span>
                 </div>
+                <p v-if="errors.nickname" class="help is-danger">{{ errors.nickname }}</p>
               </div>
             </div>
           </div>
@@ -35,9 +37,10 @@
           <div class="field">
             <label class="label">Email</label>
             <div class="control has-icons-left">
-              <input type="email" class="input" placeholder="you@example.com" v-model="email" required>
+              <input type="email" class="input" :class="{ 'is-danger': errors.email }" placeholder="you@example.com" v-model="email" required>
               <span class="icon is-left"><i class="fas fa-envelope"></i></span>
             </div>
+            <p v-if="errors.email" class="help is-danger">{{ errors.email }}</p>
           </div>
 
           <div class="columns">
@@ -45,9 +48,10 @@
               <div class="field">
                 <label class="label">Password</label>
                 <div class="control has-icons-left">
-                  <input type="password" class="input" placeholder="Create a password" v-model="password" required>
+                  <input type="password" class="input" :class="{ 'is-danger': errors.password }" placeholder="Min. 8 characters" v-model="password" required>
                   <span class="icon is-left"><i class="fas fa-lock"></i></span>
                 </div>
+                <p v-if="errors.password" class="help is-danger">{{ errors.password }}</p>
               </div>
             </div>
             <div class="column is-6">
@@ -87,6 +91,7 @@
                 <span class="file-name">{{ profile_image ? profile_image.name : 'No file chosen' }}</span>
               </label>
             </div>
+            <p v-if="errors.profile_image" class="help is-danger">{{ errors.profile_image }}</p>
           </div>
 
           <div class="field mt-5">
@@ -110,7 +115,7 @@
 <script>
 import axios from 'axios'
 import { toast } from 'bulma-toast'
-import { ensureCSRFToken, getCSRFConfig } from '../utils/auth'
+
 
 export default {
   data() {
@@ -123,6 +128,7 @@ export default {
       is_driver: false,
       profile_image: null,
       submitting: false,
+      errors: {},
     }
   },
   methods: {
@@ -144,6 +150,7 @@ export default {
         return
       }
 
+      this.errors = {}
       this.submitting = true
       const formData = new FormData()
       formData.append('username', this.username)
@@ -157,22 +164,25 @@ export default {
       }
 
       try {
-        await ensureCSRFToken()
-        const { getCookie } = await import('../utils/auth')
-        const config = {
-          headers: { 'X-CSRFToken': getCookie('csrftoken') }
-        }
-
-        await axios.post('/api/register/', formData, config)
+        await axios.post('/api/register/', formData)
         toast({ message: 'Account created! Please login.', type: 'is-success', position: 'top-center' })
         this.$router.push('/login')
       } catch (error) {
         console.error('Registration error:', error)
-        const errorMsg = error.response?.data?.username?.[0] ||
-                        error.response?.data?.email?.[0] ||
-                        error.response?.data?.profile_image?.[0] ||
-                        error.response?.data?.detail ||
-                        'Something went wrong'
+        const data = error.response?.data || {}
+        // Map server field errors to inline messages
+        const fieldErrors = {}
+        for (const field of ['username', 'nickname', 'email', 'password', 'is_driver', 'profile_image']) {
+          if (data[field]) {
+            fieldErrors[field] = Array.isArray(data[field]) ? data[field][0] : data[field]
+          }
+        }
+        this.errors = fieldErrors
+
+        const errorMsg = data.detail ||
+          (Object.keys(fieldErrors).length > 0
+            ? 'Please fix the highlighted errors below.'
+            : 'Something went wrong')
         toast({ message: errorMsg, type: 'is-danger', position: 'top-center' })
       } finally {
         this.submitting = false

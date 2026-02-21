@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions, status, mixins
-from rest_framework.decorators import action, api_view, permission_classes, throttle_classes
+from rest_framework.decorators import action, api_view, permission_classes, authentication_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import ScopedRateThrottle
@@ -34,6 +34,7 @@ def get_csrf_token(request):
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
+@authentication_classes([])
 def register_view(request):
     """
     Public registration endpoint.
@@ -50,6 +51,7 @@ def register_view(request):
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
+@authentication_classes([])
 @throttle_classes([LoginRateThrottle])
 def login_view(request):
     """
