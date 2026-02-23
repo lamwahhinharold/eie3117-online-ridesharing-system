@@ -140,7 +140,7 @@
 
 <script>
 import axios from 'axios'
-import { isExpired, seatBarClass, formatDate } from '../utils/route'
+import { isExpired, seatBarClass, formatDate, formatTime } from '../utils/route'
 
 export default {
   data() {
@@ -211,11 +211,7 @@ export default {
     isExpired,
     seatBarClass,
     formatDate,
-    formatTime(timeStr) {
-      if (!timeStr) return ''
-      const parts = timeStr.split(':')
-      return parts.slice(0, 2).join(':')
-    },
+    formatTime,
   }
 }
 </script>

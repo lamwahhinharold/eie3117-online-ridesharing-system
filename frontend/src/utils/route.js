@@ -41,3 +41,14 @@ export function formatDate(dateString) {
     year: 'numeric',
   })
 }
+
+/**
+ * Trim seconds from a time string (HH:MM:SS -> HH:MM).
+ * @param {string} timeStr - Time string
+ * @returns {string}
+ */
+export function formatTime(timeStr) {
+  if (!timeStr) return ''
+  const parts = timeStr.split(':')
+  return parts.slice(0, 2).join(':')
+}

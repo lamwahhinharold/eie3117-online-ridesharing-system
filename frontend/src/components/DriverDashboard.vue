@@ -18,11 +18,11 @@
             <div class="is-flex is-justify-content-space-between is-align-items-start mb-4">
               <div class="route-endpoints">
                 <p class="route-point">
-                  <span class="route-dot route-dot--start"></span>
+                  <i class="fas fa-map-marker-alt route-icon route-icon--start"></i>
                   {{ route.start_location }}
                 </p>
                 <p class="route-point">
-                  <span class="route-dot route-dot--end"></span>
+                  <i class="fas fa-flag-checkered route-icon route-icon--end"></i>
                   {{ route.destination }}
                 </p>
               </div>
@@ -33,7 +33,7 @@
             <!-- Info -->
             <div class="dash-meta">
               <span><i class="fas fa-calendar"></i> {{ formatDate(route.date) }}</span>
-              <span><i class="fas fa-clock"></i> {{ route.time }}</span>
+              <span><i class="fas fa-clock"></i> {{ formatTime(route.time) }}</span>
               <span><i class="fas fa-car"></i> {{ route.car_model }}</span>
             </div>
 
@@ -80,7 +80,7 @@
 import axios from 'axios'
 import { toast } from 'bulma-toast'
 import { getCSRFConfig } from '../utils/auth'
-import { isExpired, seatBarClass, formatDate } from '../utils/route'
+import { isExpired, seatBarClass, formatDate, formatTime } from '../utils/route'
 
 export default {
   props: {
@@ -94,6 +94,7 @@ export default {
     isExpired,
     seatBarClass,
     formatDate,
+    formatTime,
     async handleDelete(id) {
       if (confirm('Are you sure you want to delete this route? All bookings will also be removed.')) {
         try {
@@ -134,14 +135,14 @@ export default {
   font-size: 0.95rem;
   color: var(--text-primary);
 }
-.route-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.route-icon {
+  width: 16px;
+  text-align: center;
   flex-shrink: 0;
+  font-size: 0.9rem;
 }
-.route-dot--start { background: var(--primary); }
-.route-dot--end   { background: var(--success); }
+.route-icon--start { color: var(--primary); }
+.route-icon--end   { color: var(--success); }
 .dash-meta {
   display: flex;
   flex-wrap: wrap;

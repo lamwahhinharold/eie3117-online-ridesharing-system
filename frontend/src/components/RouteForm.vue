@@ -8,7 +8,7 @@
     <div class="field">
       <label class="label">Starting Location</label>
       <div class="control has-icons-left">
-        <input type="text" class="input" placeholder="e.g. HK PolyU" v-model="form.start_location" required>
+        <input type="text" class="input" placeholder="e.g. PolyU" v-model="form.start_location" required>
         <span class="icon is-left"><i class="fas fa-map-marker-alt"></i></span>
       </div>
     </div>
