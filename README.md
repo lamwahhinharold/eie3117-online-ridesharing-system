@@ -40,6 +40,7 @@ A full-stack web application for an online ridesharing platform. Users can regis
 
 2. Set up Python environment:
    - With Conda: `conda env create -f environment.yml`
+   - Activate venv: `conda activate eie3117`
 
 3. Set up frontend: `cd frontend && npm install && cd ..`
 
