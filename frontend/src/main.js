@@ -5,7 +5,7 @@ import store from './store'
 import axios from 'axios'
 
 // base URL for Django API
-axios.defaults.baseURL = 'http://localhost:8000'
+axios.defaults.baseURL = window.location.origin
 
 // Enable cookies to be sent with cross-origin requests (for session persistence)
 axios.defaults.withCredentials = true
