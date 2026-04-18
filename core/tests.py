@@ -121,6 +121,56 @@ class AuthTests(TestCase):
 
 
 @override_settings(REST_FRAMEWORK=TEST_REST_FRAMEWORK)
+class AuthCSRFSecurityTests(TestCase):
+    """Regression tests for CSRF protection on anonymous auth endpoints."""
+
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient(enforce_csrf_checks=True)
+
+    def _get_csrf(self):
+        self.client.get('/api/csrf/')
+        cookies = self.client.cookies
+        return cookies.get('csrftoken').value if cookies.get('csrftoken') else ''
+
+    def test_register_requires_csrf(self):
+        resp = self.client.post('/api/register/', {
+            'username': 'rider1',
+            'password': 'testpass123',
+            'nickname': 'Rider One',
+            'email': 'rider1@test.com',
+            'is_driver': False,
+        })
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_login_requires_csrf(self):
+        User.objects.create_user(
+            username='user1',
+            password='testpass123',
+            nickname='U1',
+            email='u@t.com',
+        )
+        resp = self.client.post('/api/login/', {
+            'username': 'user1',
+            'password': 'testpass123',
+        }, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_login_accepts_valid_csrf_token(self):
+        User.objects.create_user(
+            username='user1',
+            password='testpass123',
+            nickname='U1',
+            email='u@t.com',
+        )
+        resp = self.client.post('/api/login/', {
+            'username': 'user1',
+            'password': 'testpass123',
+        }, format='json', HTTP_X_CSRFTOKEN=self._get_csrf())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+
+@override_settings(REST_FRAMEWORK=TEST_REST_FRAMEWORK)
 class RouteTests(TestCase):
     """Tests for route CRUD and listing."""
 
@@ -184,6 +234,31 @@ class RouteTests(TestCase):
         resp = self.client.get(f'/api/routes/{route.id}/')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.json()['start_location'], 'A')
+        self.assertEqual(resp.json()['passengers'], [])
+
+    def test_public_route_list_hides_passengers(self):
+        route = Route.objects.create(
+            driver=self.driver, date=self.future_date, time=time(10, 0),
+            start_location='A', destination='B', car_model='Car', capacity=2,
+        )
+        Booking.objects.create(route=route, rider=self.rider)
+        resp = self.client.get('/api/routes/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        results = resp.json().get('results', resp.json())
+        self.assertEqual(results[0]['passengers'], [])
+
+    def test_driver_can_see_passengers_on_own_routes(self):
+        route = Route.objects.create(
+            driver=self.driver, date=self.future_date, time=time(10, 0),
+            start_location='A', destination='B', car_model='Car', capacity=2,
+        )
+        Booking.objects.create(route=route, rider=self.rider)
+        self.client.login(username='driver1', password='testpass123')
+        resp = self.client.get('/api/routes/my_advertisements/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        results = data.get('results', data) if isinstance(data, dict) else data
+        self.assertEqual(results[0]['passengers'], ['Rider'])
 
     def test_driver_can_update_own_route(self):
         self.client.login(username='driver1', password='testpass123')

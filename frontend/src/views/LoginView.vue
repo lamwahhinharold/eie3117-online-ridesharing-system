@@ -45,6 +45,7 @@
 
 <script>
 import axios from 'axios'
+import { ensureCSRFToken, getCSRFConfig } from '../utils/auth'
 
 
 export default {
@@ -57,15 +58,19 @@ export default {
       const formData = { username: this.username, password: this.password }
 
       try {
-        const response = await axios.post("/api/login/", formData)
+        await ensureCSRFToken()
+        const response = await axios.post('/api/login/', formData, getCSRFConfig())
 
         this.$store.commit('setUser', response.data.user)
         this.$store.commit('setAuthenticated', true)
         this.$router.push('/')
       } catch (error) {
         const { toast } = await import('bulma-toast')
+        const message = error.response?.status === 403
+          ? 'Security check failed. Refresh and try again.'
+          : 'Invalid Login: ' + (error.response?.data?.detail || 'Check your credentials')
         toast({
-          message: 'Invalid Login: ' + (error.response?.data?.detail || 'Check your credentials'),
+          message,
           type: 'is-danger',
           position: 'top-center',
         })

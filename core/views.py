@@ -3,7 +3,7 @@ from rest_framework.decorators import action, api_view, permission_classes, auth
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.throttling import ScopedRateThrottle
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.contrib.auth import authenticate, login, logout
 from django.db import transaction
 from django.db.models import Count, F, Q
@@ -35,6 +35,7 @@ def get_csrf_token(request):
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 @authentication_classes([])
+@csrf_protect
 def register_view(request):
     """
     Public registration endpoint.
@@ -53,6 +54,7 @@ def register_view(request):
 @permission_classes([permissions.AllowAny])
 @authentication_classes([])
 @throttle_classes([LoginRateThrottle])
+@csrf_protect
 def login_view(request):
     """
     Session-based login using cookies.

@@ -83,7 +83,11 @@ class RouteSerializer(serializers.ModelSerializer):
         )
 
     def get_passengers(self, obj):
-        # Returns a list of nicknames of riders who booked this specific route
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return []
+        if obj.driver_id != request.user.id:
+            return []
         return [booking.rider.nickname for booking in obj.bookings.all()]
 
     def validate_capacity(self, value):

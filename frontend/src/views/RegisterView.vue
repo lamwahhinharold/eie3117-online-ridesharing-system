@@ -115,6 +115,7 @@
 <script>
 import axios from 'axios'
 import { toast } from 'bulma-toast'
+import { ensureCSRFToken, getCSRFConfig } from '../utils/auth'
 
 
 export default {
@@ -164,7 +165,8 @@ export default {
       }
 
       try {
-        await axios.post('/api/register/', formData)
+        await ensureCSRFToken()
+        await axios.post('/api/register/', formData, getCSRFConfig())
         toast({ message: 'Account created! Please login.', type: 'is-success', position: 'top-center' })
         this.$router.push('/login')
       } catch (error) {
@@ -179,7 +181,9 @@ export default {
         }
         this.errors = fieldErrors
 
-        const errorMsg = data.detail ||
+        const errorMsg = error.response?.status === 403
+          ? 'Security check failed. Refresh and try again.'
+          : data.detail ||
           (Object.keys(fieldErrors).length > 0
             ? 'Please fix the highlighted errors below.'
             : 'Something went wrong')
